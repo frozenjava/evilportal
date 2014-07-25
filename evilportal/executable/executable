@@ -1,0 +1,326 @@
+#!/usr/bin/python
+
+# Executeable for command-line integration
+# Version 2.0
+# Newbi3
+
+import sys
+import subprocess
+import os
+import glob
+
+# Define Colors
+purple = "\033[95m"
+blue = "\033[94m"
+green = "\033[92m"
+yellow = "\033[93m"
+red = "\033[91m"
+reset = "\033[0m"
+
+
+def execute(cmd):
+	""" Execute a command and show the output live """
+	toRun = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, bufsize=0)
+	return toRun.communicate()
+
+def checkRunning():
+	""" Check if nodogsplash is running """
+	if execute("ps -aux | grep nodogsplash | grep -v grep")[0] == "":
+		return False
+	else:
+		return True
+
+def checkConfig():
+	""" Check if everything has been configured """
+	noDogSplash = False
+	nginx = False
+
+	noDogSplashFile = "/etc/nodogsplash/nodogsplash.conf"
+	#nginxFile = "/etc/nginx/nginx.conf"
+
+	if (os.path.isfile(noDogSplashFile)):
+		f = open(noDogSplashFile, "r")
+		lines = f.readlines()
+		if "#configured" in lines[0]:
+			noDogSplash = True
+		f.close()
+
+	# Not needed as of version 2.2
+	#if (os.path.isfile(nginxFile)):
+	#	f = open(nginxFile, "r")
+	#	lines = f.readlines()
+	#	if "#configured" in lines[0]:
+	#		nginx = True
+	#	f.close()
+
+	if noDogSplash == False or nginx == False:
+		return False
+	else:
+		return True
+
+def checkDepends():
+	""" Check if dependencies are installed """
+	if execute("opkg list-installed | grep nodogsplash")[0] == "" or execute("opkg list-installed kmod-sched")[0] == "":
+		return False
+	else:
+		return True
+
+def status():
+	""" Get the status of NoDogSplash """
+	if not checkRunning():
+		print yellow + "NoDogSplash Service:\t" + red + "not running" + reset
+	else:
+		print yellow + "NoDogSplash Service:\t" + green + "running" + reset
+
+	if not checkDepends():
+		print yellow + "Dependencies:\t\t" + red + "not installed" + reset
+	else:
+		print yellow + "Dependencies:\t\t" + green + "installed" + reset
+
+	if not checkConfig():
+		print yellow + "Configured:\t\t" + red + "not configured" + reset
+	else:
+		print yellow + "Configured:\t\t" + green + "configured" + reset
+
+def start():
+	""" Start NoDogSplash """
+	print yellow + "Make sure you configured NoDogSplash!" + reset
+	print yellow + "Starting NoDogSplash" + reset
+	os.system('echo "/etc/init.d/nodogsplash start" | at now')
+
+def stop():
+	""" Stop NoDogSplash """
+	print yellow + "Stoping NoDogSplash" + reset
+	print execute("/etc/init.d/nodogsplash stop")[0]
+
+
+def enable():
+	""" Enables NoDogSplash on startup """
+	print yellow + "Enabling NoDogSplash on startup" + reset
+	print execute("/etc/init.d/nodogsplash enable")[0]
+
+
+def disable():
+	""" Disables NoDogSplash on startup """
+	print yellow + "Disabling NoDogSplash on startup" + reset
+	print execute("/etc/init.d/nodogsplash disable")[0]
+
+
+def installDeps():
+	""" Install dependencies """
+	print yellow + "Installing dependencies..." + reset
+	print execute("opkg update")[0]
+	print execute("opkg install nodogsplash kmod-sched --force-depends")[0]
+
+
+def rnginx():
+	""" Restart nginx """
+	print yellow + "Restarting Ngin-X" + reset
+	os.system('echo "/etc/init.d/nginx restart" | at now')
+
+def portals():
+	""" List portals """
+	sdPortals = glob.glob("/sd/portals/*")
+	intPortals = glob.glob("/root/portals/*")
+
+	print green + "Saved Portals" + reset + "\n"
+
+	for portal in sdPortals:
+		if os.path.isfile(portal):
+			print blue + portal + reset
+
+	for portal in intPortals:
+		if os.path.isfile(portal):
+			print blue + portal + reset
+
+def delete(file):
+	""" Delete a portal """
+	if os.path.isfile(file):
+		os.remove(file)
+		print green + "Youre portal has been deleted!" + reset
+	else:
+		print red + "File does not appear to exist" + reset
+
+def activate(file):
+	""" Set a portal as active """
+	if os.path.isfile(file):
+		os.system("cp " + file + " /etc/nodogsplash/htdocs/splash.html")
+		print green + file + " has been set as the active portal" + reset
+	else:
+		print red + file + " does not appear to exist"
+
+def backup(storage, name):
+	""" Create a backup of a portal """
+
+	if not name.endswith(".html"):
+		name = name + ".html"
+	
+	if "/" in name:
+		name = name.replace("/", "")
+
+	if storage == "sd" or storage == "internal":
+		if storage == "sd":
+			os.system("cp /etc/nodogsplash/htdocs/splash.html /sd/portals/" + name)
+			print green + "A backup has been saved!" + reset
+		else:
+			os.system("cp /etc/nodogsplash/htdocs/splash.html /root/portals/" + name)
+			print green + "A backup has been saved!" + reset
+	else:
+		print red + "Usge: evilportal backup sd/internal portal_name" + reset
+
+def config():
+	""" Show instructions on configuration """
+	#STEP ONE - Confgire NGIN-X - NOT USED AS OF VERSION 2.2
+	#with open("/tmp/nginx_temp", "wt") as fout:
+	#	fout.write("#configured\n")
+	#	with open("/etc/nginx/nginx.conf", "rt") as f:
+	#		for line in f:
+	#			fout.write(line.replace("listen       80;", "listen	8080;"))
+	#os.system("mv /tmp/nginx_temp /etc/nginx/nginx.conf")
+
+	#STEP TWO & THREE - Configure NoDogSplash and Change Port
+	managementPort = 1471
+	with open ("/etc/nginx/nginx.conf", "rt") as f:
+		for line in f:
+			if "listen" in line:
+				portNumLine = line.replace("listen", "")
+				portNum = portNumLine.split(";")[0].replace(" ", "").replace("	", "")
+				if portNum != "80":
+					managementPort = portNum
+
+	usersToRouter = False
+
+	with open("/tmp/nodogsplash_temp", "wt") as fout:
+		fout.write("#configured\n")
+		with open("/etc/nodogsplash/nodogsplash.conf", "rt") as f:
+			for line in f:
+				fout.write(line.replace("# GatewayPort 2050", "GatewayPort 2050"))
+				if "FirewallRuleSet users-to-router {" in line:
+					usersToRouter = True
+				if "FirewallRule allow tcp port 443" in line  and usersToRouter == True:
+					#fout.write("    FirewallRule allow tcp port 8080\n") NOT NEEDED AS OF VERSION 2.2
+					fout.write("    FirewallRule allow tcp port " + str(managementPort) + "\n")
+					usersToRouter = False
+
+	os.system("mv /tmp/nodogsplash_temp /etc/nodogsplash/nodogsplash.conf")
+
+	# STEP FOUR - Restart NGIN-X
+	#rnginx() NOT NEEDED AS OF VERSION 2.2
+	print green + "Configuration Complete" + reset
+
+def fixConfig():
+	""" Fix the configuration for people upgrading to 2.2 """
+	#STEP ONE - CHANGE PORT FROM 8080 TO 80 FOR NGINX
+        with open("/tmp/nginx_temp", "wt") as fout:
+                with open("/etc/nginx/nginx.conf", "rt") as f:
+                        for line in f:
+                                fout.write(line.replace("listen	8080;", "listen	80;"))
+        os.system("mv /tmp/nginx_temp /etc/nginx/nginx.conf")
+
+	# STEP TWO - CHANGE NODOGSPLASH PORT FROM 80 TO 2050
+	with open("/tmp/nodogsplash_temp", "wt") as fout:
+                with open("/etc/nodogsplash/nodogsplash.conf", "rt") as f:
+                        for line in f:
+                                fout.write(line.replace("GatewayPort 80", "GatewayPort 2050"))
+        os.system("mv /tmp/nodogsplash_temp /etc/nodogsplash/nodogsplash.conf")
+
+	# STEP 3 - RESTART NGINX
+	rnginx()
+	print green + "Your configuration has been fixed!" + reset
+
+def help():
+	""" Show usage info """
+
+	if not checkDepends():
+		print red + "DEPENDENCIES MUST BE INSTALLED!"
+		print "USE THE \"deps\" OPTION TO AUTOMATICALLY INSTALL THEM" + reset
+		print "\n"
+
+	if not checkConfig():
+		print red + "CONFIGURATION IS NEEDED!"
+		print "USE THE \"config\" OPTION TO AUTOMATICALLY CONFIGURE YOUR PINEAPPLE" + reset
+		print "\n"
+
+	options = ['help', 'config', 'rnginx', 'deps', 'start', 'stop', 'enable', 'disable', 'status',
+		'portals', 'backup', 'delete', 'activate', 'fixconfig']
+
+	descrip = ['\tshows help menu', '\tautomatically configure your pineapple', '\trestarts Ngin-X', 
+		'\tinstalls dependencies', '\tstarts nodogsplash', '\tstops nodogsplash', 
+		'\tstarts nodogsplash on statup', '\tstops nodogsplash on startup', 
+		'\tchecks status of no dog splash', '\tList backedup portals', 
+		'\tcreate a backup of the current active portal', '\tdelete a backedup portal', 
+		'set a portal as the active portal', 'Fix configuration if you are updating to 2.2']
+
+	if len(options) == len(descrip):
+		print green + "OPTION\t\t\tDESCRIPTION" + reset
+		for i in range(0, len(options)):
+			print blue + options[i] + "\t\t" + descrip[i] + reset
+
+	print "\n"
+	print purple + "You can edit the captive portal at: /etc/nodogsplash/htdocs/splash.html"
+	print purple + "You can manually configure nodogsplash at: /etc/nodogsplash/nodogsplash.conf"
+
+
+
+def handleArgs(args):
+	""" Handle different arguments """
+	try:
+		cmd = args[1].lower()
+	
+		if cmd == "help":
+			help()
+		elif cmd == "config":
+			if checkDepends():
+				config()
+			else:
+				print red + "Dependencies must be installed first!" + reset
+		elif cmd == "fixconfig":
+			if checkDepends():
+				fixConfig()
+			else:
+				print red + "Dependencies must be installed first!" + reset
+		elif cmd == "rnginx":
+			rnginx()
+		elif cmd == "deps":
+			installDeps()
+		elif cmd == "start":
+			start()
+		elif cmd == "stop":
+			stop()
+		elif cmd == "enable":
+			enable()
+		elif cmd == "disable":
+			disable()
+		elif cmd == "status":
+			status()
+		elif cmd == "portals":
+			portals()
+		elif cmd == "delete":
+			try:
+				delete(args[2])
+			except:
+				print red + "Usage: evilportal delete /path/to/portal" + reset
+                elif cmd == "activate":
+	                try:
+                                activate(args[2])
+                        except:
+                                print red + "Usage: evilportal activate /path/to/portal" + reset
+                elif cmd == "backup":
+                        try:
+                                backup(args[2], args[3])
+                        except:
+                                print red + "Usage: evilportal backup sd/interal portal_name" + reset
+		else:
+			help()
+	except:
+		help()
+
+
+def main(args):
+	""" Start the program """
+	argList = sys.argv
+	handleArgs(args)
+	print reset
+
+
+main(sys.argv)
