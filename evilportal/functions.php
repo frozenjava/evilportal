@@ -14,8 +14,8 @@ if (isset($_GET['backup'])) {
 }
 
 if (isset($_GET['finalize'])) {
-  exec('echo "/etc/init.d/nginx stop && /etc/init.d/nginx start" | at now');
-  echo 'Evil Portal is now ready for use!<script type="text/javascript">refresh_small("evilportal", "user");close_popup();draw_large_tile("evilportal", "infusions");</script>';
+  //exec('echo "/etc/init.d/nginx stop && /etc/init.d/nginx start" | at now');
+  echo 'Evil Portal is now ready for use!';
 }
 
 if (isset($_GET['configfile'])) {
@@ -36,7 +36,7 @@ if (isset($_GET['request_active'])) {
     
 if (isset($_GET['set_active'])) {
   $file = $_GET['set_active'];
-    exec('cp ' . $file . ' /etc/nodogsplash/htdocs/splash.html');
+  exec('cp ' . $file . ' /etc/nodogsplash/htdocs/splash.html');
   echo $file . ' is now your active portal!';
 }
     
@@ -45,7 +45,7 @@ if (isset($_GET['request_delete'])) {
   $message = '<br/><center>';
   $message .= '<b>You are about to delete <i>' . $file . '</i></b><br/>';
   $message .= 'Are you sure you want to delete this portal?<br /><br />';
-  $message .= '<a href="#" onclick="$(\'#delete_portal\').AJAXifyForm(notify); close_popup();">Yes</a>&nbsp&nbsp&nbsp<a href="#" onclick="close_popup();">No</a>';
+  $message .= '<a href="#" onclick="$(\'#delete_portal\').AJAXifyForm(notify); close_popup(); draw_large_tile(\'evilportal\', \'infusions\');">Yes</a>&nbsp&nbsp&nbsp<a href="#" onclick="close_popup();">No</a>';
   $message .= '<form method="POST" id="delete_portal" action="/components/infusions/evilportal/functions.php?delete=' . $file .'"></form></center>';
   echo $message;
 }
@@ -53,7 +53,7 @@ if (isset($_GET['request_delete'])) {
 if (isset($_GET['delete'])) {
   $file = $_GET['delete'];
   if (unlink($file))
-    echo 'File has been deleted. <script type="text/javascript">draw_large_tile("evilportal", "infusions");</script>';
+    echo 'File has been deleted.';
   else
     echo 'There was an issue deleting this file';
 }
@@ -73,11 +73,6 @@ if (isset($_GET['save'])) {
   fwrite($f, $headText . $_POST['data']);
   fclose($f);
 
-  if ($_POST['save_action'] == "exit")
-    $javascript = '<script type="text/javascript">close_popup();</script>';
-  else
-    $javascript = '';
-
   $message = 'Saved file: ' . $_POST['file'] . ' ' . $javascript;
 
   if ($backupName != "") {
@@ -94,7 +89,7 @@ if (isset($_GET['save'])) {
       $backup = fopen($backupPath . $backupName, 'w');
       fwrite($backup, $_POST['data']);
       fclose($f); 
-      $message = 'Your portal has been saved to a backup!' . $javascript;
+      $message = 'Your portal has been saved to a backup!';
     }
   }
 
@@ -111,11 +106,20 @@ if (isset($_GET['dev_preview'])) {
   showDevPreview($file);
 }
 
+if (isset($_GET['check_depends'])) {
+  echo checkDepends();
+}
+
 if (isset($_GET['request_depends'])) {
   $fromTile = $_GET['request_depends'];
   $message = '<form method="POST" id="install_depends_evilportal" action="/components/infusions/evilportal/functions.php?install_depends=' . $fromTile . '"></form>';
-  $message .= '<script type="text/javascript">setTimeout(function(){$("#install_depends_evilportal").AJAXifyForm(notify)}, 2000);</script>';
+  /*if ($fromTile == "large")
+    $message .= '<script type="text/javascript">setTimeout(function(){$("#install_depends_evilportal").AJAXifyForm(notify); refresh_small("evilportal", "user"); draw_large_tile("evilportal", "infusions"); close_popup();}, 2000);</script>';
+  else
+    $message .= '<script type="text/javascript">setTimeout(function(){$("#install_depends_evilportal").AJAXifyForm(notify); refresh_small("evilportal", "user"); close_popup();}, 2000);</script>';*/
+
   $message .= "<br /><center>Dependencies are being installed. This box will automatically go away.<br /><br /><img style='height: 2em; width: 2em;' src='/includes/img/throbber.gif'</center>";
+  //$message .= '<script type="text/javascript"></script>';
   echo $message;
 }
 
@@ -124,24 +128,12 @@ if (isset($_GET['install_depends'])) {
 
   $fromTile = $_GET['install_depends'];
 
-  if ($fromTile == "large")
-    $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");close_popup();draw_large_tile("evilportal", "infusions");</script>';
-  else
-    $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");close_popup();</script>';
-
-  echo 'Evil Portal has finished installing dependencies! ' . $javascript;
+  echo 'Evil Portal has finished installing dependencies!';
 }
 
 if (isset($_GET['configure'])) {
-  $fromTile = $_GET['configure'];
-
-  if ($fromTile == "large")
-    $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");close_popup();draw_large_tile("evilportal", "infusions");</script>';
-  else
-    $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");close_popup();notify("Evil Portal is now ready to use!", "evilportal", "green");</script>';
-
   exec('pineapple infusion evilportal config');
-  echo 'Evil Portal has been configured! ' . $javascript;
+  echo 'Evil Portal has been configured! ';
 }
 
 if (isset($_GET['start'])) {
@@ -150,12 +142,12 @@ if (isset($_GET['start'])) {
     
     $fromTile = $_GET['start'];
     
-    if ($fromTile == "large")
+    /*if ($fromTile == "large")
       $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");draw_large_tile("evilportal", "infusions");</script>';
     else
-      $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';
+      $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';*/
     
-    echo 'Nodogsplash has been started!' . $javascript;
+    echo 'Nodogsplash has been started!';
 
   } else
     echo 'You have actions that must be preformed first!';
@@ -166,12 +158,12 @@ if (isset($_GET['stop'])) {
 
   $fromTile = $_GET['stop'];
 
-  if ($fromTile == "large")
+  /*if ($fromTile == "large")
     $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");draw_large_tile("evilportal", "infusions");</script>';
     else
-      $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';
+      $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';*/
 
-  echo 'Nodogsplash has been stoped!' . $javascript;
+  echo 'Nodogsplash has been stoped!';
 }
 
 if (isset($_GET['enable'])) {
@@ -180,12 +172,12 @@ if (isset($_GET['enable'])) {
 
     $fromTile = $_GET['enable'];
 
-    if ($fromTile == "large")
+    /*if ($fromTile == "large")
       $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");draw_large_tile("evilportal", "infusions");</script>';
     else
-      $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';
+      $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';*/
 
-    echo 'Nodogsplash will now run on startup!' . $javascript;
+    echo 'Nodogsplash will now run on startup!';
   } else
     echo 'You have actions that must be preformed first!';
 }
@@ -195,12 +187,12 @@ if (isset($_GET['disable'])) {
 
   $fromTile = $_GET['disable'];
 
-  if ($fromTile == "large")
+  /*if ($fromTile == "large")
     $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");draw_large_tile("evilportal", "infusions");</script>';
   else
-    $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';
+    $javascript = '<script type="text/javascript">refresh_small("evilportal", "user");</script>';*/
 
-  echo 'Nodogsplash will no longer run on startup!' . $javascript;
+  echo 'Nodogsplash will no longer run on startup!';
 }
 
 // FUNCTIONS BELOW
@@ -225,18 +217,15 @@ function checkAutoStart() {
 
 function checkDepends() {
   $splash = true;
-  $sched = true;
+  //$sched = true;
   
   if (exec("opkg list-installed | grep nodogsplash") == '')
     $splash = false;
 
-  if (exec("opkg list-installed | grep kmod-sched") == '')
-    $sched = false;
+  //if (exec("opkg list-installed | grep kmod-sched") == '')
+  //  $sched = false;
 
-  if ($splash == false || $sched == false)
-    return false;
-  else
-    return true;
+  return $splash;
 
 }
 
@@ -244,7 +233,7 @@ function checkConfig() {
   $nodogsplashFile = "/etc/nodogsplash/nodogsplash.conf";
   //$nginxFile = "/etc/nginx/nginx.conf";
   $nodogsplash = false;
-  $nginx = true;
+  //$nginx = true;
 
   if (file_exists($nodogsplashFile)) {
     $f = fopen($nodogsplashFile, "r");
@@ -262,10 +251,7 @@ function checkConfig() {
     fclose($f);
   }*/
 
-  if ($nodogsplash == false || $nginx == false)
-    return false;
-  else
-    return true;
+  return $nodogsplash;
 
 }
 
@@ -311,7 +297,7 @@ function showConfigFile($file) {
     $storagebox .= '</select>';
 
     if ($file != "/etc/nodogsplash/htdocs/splash.html") {
-      $buttons = '<button type="button" onclick="save(\'exit\', false)">Save & Close</button><button type="button" onclick="save(\'continue\', false)">Save & Continue</button>';
+      $buttons = '<button type="button" onclick="save(\'exit\', false); close_popup();">Save & Close</button><button type="button" onclick="save(\'continue\', false)">Save & Continue</button>';
     } else {
       $buttons = '<button type="button" onclick="save(\'continue\', false)">Save Portal</button>';
       $backup = '<div id="backupTable" style="float:left; text-align:left">' . $storagebox . '<input type="text" id="backname" placeholder="Backup Portal Name"> <button type="button" onclick="save(\'continue\', true)">Backup Portal</button></div>';
@@ -357,6 +343,12 @@ function showConfigFile($file) {
 }
 
 function showSavedPortals() {
+  if (!file_exists("/sd/portals"))
+    mkdir("/sd/portals");
+  
+  if (!file_exists("/root/portals"))
+    mkdir("/root/portals");
+
   $sd_portals = scandir('/sd/portals');
   $internal_portals = scandir('/root/portals');
           

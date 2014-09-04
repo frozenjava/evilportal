@@ -18,8 +18,8 @@ if (require_pineapple_version(1.4)) {
       echo '
       <center>
         <font color="red">You need to install dependencies before you can use Evil Portal</font><br />
-        <form method="POST" id="depends_evilportal" action="' . $infusion_path .'/functions.php?request_depends=large"></form>        
-        <a href="#" onclick="ajaxPopup(\'#depends_evilportal\');">Install Dependencies</a>
+        <form method="POST" id="install_depends_evilportal" action="/components/infusions/evilportal/functions.php?install_depends"></form>
+        <a href="#" onclick="installDepends(\'#install_depends_evilportal\')">Install Dependencies</a>
       </center>
       ';
     } else
@@ -39,14 +39,14 @@ if (require_pineapple_version(1.4)) {
     ';
 
     if (checkRunning())
-      echo '&nbsp;NoDogSplash <font color="lime"><b>Running.</b></font>&nbsp;&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotify(\'#stop_evilportal\');">Stop</a></b><br />';
+      echo '&nbsp;NoDogSplash <font color="lime"><b>Running.</b></font>&nbsp;&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotifyAndRefresh(\'#stop_evilportal\');">Stop</a></b><br />';
     else
-      echo '&nbsp;NoDogSplash <font color="red"><b>Disabled.</b></font>&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotify(\'#start_evilportal\');">Start</a></b><br />';
+      echo '&nbsp;NoDogSplash <font color="red"><b>Disabled.</b></font>&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotifyAndRefresh(\'#start_evilportal\');">Start</a></b><br />';
 
     if (checkAutoStart())
-      echo '&nbsp;Autostart <font color="lime"><b>Enabled.</b></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotify(\'#disable_evilportal\');">Disable</a></b><br />';
+      echo '&nbsp;Autostart <font color="lime"><b>Enabled.</b></font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotifyAndRefresh(\'#disable_evilportal\');">Disable</a></b><br />';
     else
-      echo '&nbsp;Autostart <font color="red"><b>Disabled.</b></font>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotify(\'#enable_evilportal\');">Enable</a></b><br />';
+      echo '&nbsp;Autostart <font color="red"><b>Disabled.</b></font>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp<b><a href="#" onclick="ajaxNotifyAndRefresh(\'#enable_evilportal\');">Enable</a></b><br />';
 
     echo '<div id="spinny" style="visibility:hidden"><center><img style="height: 2em; width: 2em;" src="/includes/img/throbber.gif"</center></div>';
 

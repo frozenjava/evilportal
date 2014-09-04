@@ -23,7 +23,9 @@
   <br />
   <ul>
     <li>Click "<i>Show Config</i>" above to modify the configuration file.</li>
-    <li>Look for the line that says "<i>FirewallRuleSet users-to-router {</i>" under that look for: "<i>FirewallRule allow tcp port 443</i>".</li>
+    <li>Look for the line that says "<i>FirewallRuleSet preauthenticated-users {</i>".</li>
+    <li>Under that you should see "<i>#    FirewallRule allow tcp port 80 to 123.321.123.321</i>" remove the "<i>#</i>" and replace "<i>123.321.123.321</i>" with "<i>172.16.42.1</i>".</li>
+    <li>Look for the line that says "<i>FirewallRuleSet users-to-router {</i>" and under that look for: "<i>FirewallRule allow tcp port 443</i>".</li>
     <li>Below this you need to add two lines:  "<i>FirewallRule allow tcp port 8080</i>" "<i>FirewallRule allow tcp port 1471</i>".</li>
     <li>If you have change the management port from "<i>1471</i>" to something else you will need to replace "<i>1471</i>" above with your port.</li>
     <li>Look for <i>"# GatewayPort 2050"</i>. Remove the <i>"#"</i> at the begning then save the changes.</li>
@@ -35,7 +37,7 @@
   <br />
   <ul>
     <li>Click <i>"Finalize Configuration"</i> below when are you all done.</li>
-    <li>This will restart Nginx and tell Evil Portal you  are ready to move on.</li>
+    <li>This will tell Evil Portal you are ready to move on.</li>
   </ul>
 </ul>
 

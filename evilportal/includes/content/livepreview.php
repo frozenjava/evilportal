@@ -2,6 +2,6 @@
 
 include "../../functions.php";
 
-showLivePreview();
+showLivePreview("");
 
 ?>

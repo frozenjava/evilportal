@@ -2,6 +2,6 @@
 
 include "../../functions.php";
 
-showDevPreview();
+showDevPreview("");
 
 ?>

@@ -5,7 +5,7 @@
 #########################
 $name = 'Evil Portal II';  #Name of tile
 $updatable = 'false';  #Should this tile auto-refresh
-$version = '2.2';
+$version = '2.3';
 
 #########################
 #     Handler Code      #

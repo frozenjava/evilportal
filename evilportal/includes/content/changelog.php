@@ -2,6 +2,16 @@
 
 <h2>Change Log</h2>
 
+<h3>2.3</h3>
+<ul>
+  <li>Fixed popups not going away automatically on 2.x firmware</li>
+  <li>Configuration chages that allow the webserver on port 80 to be accessed with no issues by un-authenticated users</li>
+  <ul>
+    <li><i>If you are updating from version 2.2 or lower you should <a href="#" onclick="ajaxPopup('#fixconfig');">fix your configuration</a></i></li>
+  </ul>
+  <li>Kmod-sched is no longer reuired so therefore no longer gets installed</li>
+</ul>
+
 <h3>2.2</h3>
 <ul>
   <li>Added ability to backup portals for later use</li>

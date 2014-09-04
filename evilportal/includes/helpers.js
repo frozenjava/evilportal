@@ -33,13 +33,13 @@ function update_log(message){
 
 function installDepends(id) {
   popup('<br /><center>Dependencies are being installed. This box will automatically go away.<br /><br /><img style="height: 2em; width: 2em;" src="/includes/img/throbber.gif"</center>');
-  $(id).AJAXifyForm(notify);
+  setTimeout(function(){$(id).AJAXifyForm(notify); refresh_small("evilportal", "user"); draw_large_tile("evilportal", "infusions"); close_popup();}, 2000);
   return false;
 }
 
 function configure(id) {
   popup('<br /><center>Configuration changes are being made. This box will automatically go away.<br /><br /><img style="height: 2em; width: 2em;" src="/includes/img/throbber.gif"</center>');
-  $(id).AJAXifyForm(notify);
+  setTimeout(function(){ $(id).AJAXifyForm(notify); refresh_small("evilportal", "user"); draw_large_tile("evilportal", "infusions"); close_popup(); }, 2000);
   return false;
 }
 
@@ -51,5 +51,11 @@ function ajaxPopup(id) {
 function ajaxNotify(id) {
   document.getElementById("spinny").style.visibility = "visible";
   $(id).AJAXifyForm(notify);
+  return false;
+}
+
+function ajaxNotifyAndRefresh(id) {
+  document.getElementById("spinny").style.visibility = "visible";
+  setTimeout(function(){ $(id).AJAXifyForm(notify); refresh_small("evilportal", "user"); draw_large_tile("evilportal", "infusions"); }, 2000);
   return false;
 }

@@ -33,7 +33,7 @@ def checkRunning():
 def checkConfig():
 	""" Check if everything has been configured """
 	noDogSplash = False
-	nginx = False
+	#nginx = False
 
 	noDogSplashFile = "/etc/nodogsplash/nodogsplash.conf"
 	#nginxFile = "/etc/nginx/nginx.conf"
@@ -53,14 +53,14 @@ def checkConfig():
 	#		nginx = True
 	#	f.close()
 
-	if noDogSplash == False or nginx == False:
+	if noDogSplash == False:
 		return False
 	else:
 		return True
 
 def checkDepends():
 	""" Check if dependencies are installed """
-	if execute("opkg list-installed | grep nodogsplash")[0] == "" or execute("opkg list-installed kmod-sched")[0] == "":
+	if execute("opkg list-installed | grep nodogsplash")[0] == "":
 		return False
 	else:
 		return True
@@ -110,7 +110,7 @@ def installDeps():
 	""" Install dependencies """
 	print yellow + "Installing dependencies..." + reset
 	print execute("opkg update")[0]
-	print execute("opkg install nodogsplash kmod-sched --force-depends")[0]
+	print execute("opkg install nodogsplash")[0]
 
 
 def rnginx():
@@ -194,7 +194,17 @@ def config():
 		fout.write("#configured\n")
 		with open("/etc/nodogsplash/nodogsplash.conf", "rt") as f:
 			for line in f:
-				fout.write(line.replace("# GatewayPort 2050", "GatewayPort 2050"))
+				#fout.write(line.replace("#    FirewallRule allow tcp port 80 to 123.321.123.321", "   FirewallRule allow tcp port 80 to 172.16.42.1"))
+				#fout.write(line.replace("# GatewayPort 2050", "GatewayPort 2050"))
+
+				# Replace certain things with other things
+				if "#    FirewallRule allow tcp port 80 to 123.321.123.321" in line:
+					fout.write("   FirewallRule allow tcp port 80 to 172.16.42.1\n")
+				elif "# GatewayPort 2050" in line:
+					fout.write("GatewayPort 2050\n")
+				else:
+					fout.write(line)
+
 				if "FirewallRuleSet users-to-router {" in line:
 					usersToRouter = True
 				if "FirewallRule allow tcp port 443" in line  and usersToRouter == True:
@@ -221,7 +231,17 @@ def fixConfig():
 	with open("/tmp/nodogsplash_temp", "wt") as fout:
                 with open("/etc/nodogsplash/nodogsplash.conf", "rt") as f:
                         for line in f:
-                                fout.write(line.replace("GatewayPort 80", "GatewayPort 2050"))
+				# Replace certain things with other things
+                                if "#    FirewallRule allow tcp port 80 to 123.321.123.321" in line:
+                                        fout.write("   FirewallRule allow tcp port 80 to 172.16.42.1\n")
+                                elif "# GatewayPort 2050" in line:
+                                        fout.write("GatewayPort 2050\n")
+                                else:
+                                        fout.write(line)
+
+				#fout.write(line.replace("#    FirewallRule allow tcp port 80 to 123.321.123.321", "    FirewallRule allow tcp port 80 to 172.16.42.1"))
+                                #fout.write(line.replace("GatewayPort 80", "GatewayPort 2050"))
+
         os.system("mv /tmp/nodogsplash_temp /etc/nodogsplash/nodogsplash.conf")
 
 	# STEP 3 - RESTART NGINX
